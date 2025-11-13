@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивен Урок: SQL Псевдоними (Aliases)</title>
+    <!-- Зареждане на Tailwind CSS за бърз и красив дизайн -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Използване на модерен шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Прилагане на шрифта Inter по подразбиране */
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      /* Стил за кодовите блокове */
+      code.sql {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1.1em;
+        color: #f8fafc; /* nearly white */
+        background-color: #1e293b; /* dark blue-gray */
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+      pre code.sql {
+        display: block;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      /* Стил за коментари в SQL кода */
+      code.sql .comment {
+        color: #64748b; /* lighter gray */
+      }
+      /* Стил за детайлите (акордеон) */
+      details > summary {
+        cursor: pointer;
+        font-weight: 500;
+        color: #2563eb; /* blue */
+        margin-top: 10px;
+      }
+      details[open] {
+        padding-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    <!-- Основен контейнер -->
+    <div class="container max-w-5xl mx-auto p-6 lg:p-10">
+      <!-- Заглавие -->
+      <header
+        class="bg-white p-8 rounded-xl shadow-lg mb-8 border-b-4 border-blue-600"
+      >
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          Урок: Псевдоними в SQL (<code class="sql">AS</code>)
+        </h1>
+        <p class="text-xl text-gray-600">
+          Как да преименуваме колони, за да направим резултатите си по-ясни.
+        </p>
+      </header>
+
+      <!-- Въведение -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-blue-700 mb-4">
+          Защо са ни нужни "прякори"?
+        </h2>
+        <p class="mb-4 text-lg">
+          В предишния урок работихме с идеална таблица, където имената на
+          колоните бяха ясни ("Име", "Заплата"). В реалния свят обаче не е така.
+          Често ще попадаш на таблици, създадени от програмисти, с имена като
+          <code class="sql">cust_first_name</code>,
+          <code class="sql">prod_sale_price_eur</code> или
+          <code class="sql">dt_created</code>.
+        </p>
+        <p class="mb-4 text-lg">
+          Когато покажеш резултат от такава таблица на шефа си, той няма да
+          разбере нищо.
+        </p>
+        <p class="text-lg">
+          Тук идва командата <code class="sql">AS</code>. Тя ни позволява да
+          сложим временен "етикет" или "прякор" (<strong>псевдоним</strong>) на
+          колоната, който да е валиден само за тази заявка. Това
+          <strong class="text-red-600">не променя</strong> името на колоната в
+          базата данни!
+        </p>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">
+          Трите основни причини да ползваме псевдоними:
+        </h4>
+        <ul class="list-disc list-inside ml-4 text-lg space-y-2">
+          <li>
+            За да направим грозните имена на колони
+            <strong class="text-blue-600">по-четливи</strong> (напр.
+            <code class="sql">prod_name</code> става 'Име на продукт').
+          </li>
+          <li>
+            Когато правим
+            <strong class="text-blue-600">изчисления</strong> (напр.
+            <code class="sql">Цена * 1.20</code>), новата колона няма име. Ние
+            трябва да ѝ дадем!
+          </li>
+          <li>
+            При свързване на таблици (JOINs), ако две таблици имат колона 'ID',
+            трябва да ги преименуваме, за да ги различим (това е за
+            по-напреднали).
+          </li>
+        </ul>
+      </section>
+
+      <!-- Нашата демо таблица -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-blue-700 mb-4">
+          Нашата Демо Таблица: <code class="sql">Prodykti</code>
+        </h2>
+        <p class="mb-4 text-lg">
+          За това упражнение ще ползваме нова таблица. Виждаш ли колко "грозни"
+          са имената на колоните? Идеални са за упражнение!
+        </p>
+
+        <div class="overflow-x-auto">
+          <table
+            class="w-full text-left border-collapse rounded-lg overflow-hidden shadow-md mt-4"
+          >
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="p-3 border-b border-gray-600">prod_id</th>
+                <th class="p-3 border-b border-gray-600">prod_naimenovanie</th>
+                <th class="p-3 border-b border-gray-600">kategoriq</th>
+                <th class="p-3 border-b border-gray-600">dostavna_tsena</th>
+                <th class="p-3 border-b border-gray-600">prodazhna_tsena</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b border-gray-200">101</td>
+                <td class="p-3 border-b border-gray-200">
+                  Лаптоп "Turbo" 15.6"
+                </td>
+                <td class="p-3 border-b border-gray-200">Техника</td>
+                <td class="p-3 border-b border-gray-200">1200.00</td>
+                <td class="p-3 border-b border-gray-200">1550.00</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b border-gray-200">102</td>
+                <td class="p-3 border-b border-gray-200">
+                  Безжична мишка "Click"
+                </td>
+                <td class="p-3 border-b border-gray-200">Техника</td>
+                <td class="p-3 border-b border-gray-200">25.50</td>
+                <td class="p-3 border-b border-gray-200">49.99</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b border-gray-200">201</td>
+                <td class="p-3 border-b border-gray-200">
+                  Кожен диван "Релакс"
+                </td>
+                <td class="p-3 border-b border-gray-200">Мебели</td>
+                <td class="p-3 border-b border-gray-200">600.00</td>
+                <td class="p-3 border-b border-gray-200">950.00</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b border-gray-200">103</td>
+                <td class="p-3 border-b border-gray-200">USB-C Хъб 8-в-1</td>
+                <td class="p-3 border-b border-gray-200">Аксесоари</td>
+                <td class="p-3 border-b border-gray-200">40.00</td>
+                <td class="p-3 border-b border-gray-200">79.50</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b border-gray-200">301</td>
+                <td class="p-3 border-b border-gray-200">
+                  Планка "Протеин" 60г
+                </td>
+                <td class="p-3 border-b border-gray-200">Храни</td>
+                <td class="p-3 border-b border-gray-200">1.20</td>
+                <td class="p-3 border-b border-gray-200">3.50</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Урок 1: Синтаксисът AS -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          1. Основен синтаксис: <code class="sql">SELECT ... AS ...</code>
+        </h3>
+        <p class="mb-4 text-lg">
+          Синтаксисът е елементарен. Просто след името на колоната добавяме
+          <code class="sql">AS 'Новото Име'</code>.
+        </p>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Пример:</h4>
+        <p class="mb-4">
+          Да извлечем имената и продажните цени, но с красиви имена.
+        </p>
+        <pre><code class="sql"><span class="comment">-- Избери колоната 'prod_naimenovanie' и я преименувай на 'Продукт'</span>
+SELECT prod_naimenovanie AS 'Продукт',
+       prodazhna_tsena AS 'Цена'
+FROM Prodykti;</code></pre>
+
+        <details>
+          <summary>Обяснение ред по ред</summary>
+          <ul class="list-disc list-inside ml-4 mt-2 text-md space-y-2">
+            <li>
+              <code class="sql">SELECT prod_naimenovanie AS 'Продукт'</code>:
+              Избираме <code class="sql">prod_naimenovanie</code>, но казваме на
+              SQL в таблицата с резултати тази колона да се казва 'Продукт'.
+            </li>
+            <li>
+              <code class="sql">prodazhna_tsena AS 'Цена'</code>: Същото, но за
+              цената.
+            </li>
+            <li>
+              <strong class="text-red-600">Важно!</strong> Ако новото име, което
+              искаш, е <strong class="text-red-600">една дума</strong> (напр.
+              'Цена'), можеш да минеш без кавички:
+              <code class="sql">AS Цена</code>.
+            </li>
+            <li>
+              Но ако името съдържа
+              <strong class="text-red-600">интервали</strong> (напр. 'Цена на
+              Продукта'), си <strong>задължен</strong> да ползваш кавички (<code
+                class="sql"
+                >''</code
+              >) или скоби (<code class="sql">[]</code> / `` ` ``). Аз
+              препоръчвам винаги да ползваш единични кавички (<code class="sql"
+                >''</code
+              >) за псевдоними.
+            </li>
+          </ul>
+        </details>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Резултат:</h4>
+        <div class="overflow-x-auto">
+          <table
+            class="w-auto text-left border-collapse rounded-lg overflow-hidden shadow-md mt-4"
+          >
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="p-3">Продукт</th>
+                <th class="p-3">Цена</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">Лаптоп "Turbo" 15.6"</td>
+                <td class="p-3 border-b">1550.00</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">Безжична мишка "Click"</td>
+                <td class="p-3 border-b">49.99</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">... и т.н. ...</td>
+                <td class="p-3 border-b">...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Мини задача 1 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 1:</h5>
+          <p class="mb-3">
+            Как ще изберете колоната <code class="sql">kategoriq</code> от
+            таблица <code class="sql">Prodykti</code>, но искате в резултата тя
+            да се казва <code class="sql">'Продуктова Категория'</code>?
+          </p>
+          <div id="task1-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task1" value="a" />
+              <code class="sql"
+                >SELECT 'Продуктова Категория' FROM Prodykti;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task1" value="b" />
+              <code class="sql"
+                >SELECT kategoriq AS 'Продуктова Категория' FROM Prodykti;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task1" value="c" />
+              <code class="sql"
+                >SELECT kategoriq RENAME 'Продуктова Категория' FROM
+                Prodykti;</code
+              ></label
+            >
+          </div>
+          <button
+            onclick="checkTask('task1', 'b')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task1-feedback" class="mt-3 text-lg font-semibold"></div>
+        </div>
+      </article>
+
+      <!-- Урок 2: Псевдоними за изчисления -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          2. "Суперсилата": Псевдоними за изчисляеми колони
+        </h3>
+        <p class="mb-4 text-lg">
+          Това е най-важната употреба на псевдонимите. Много често искаме да
+          видим данни, които не съществуват директно в таблицата, а са резултат
+          от изчисление.
+        </p>
+        <p class="mb-4 text-lg">
+          Например, искаме да видим каква е
+          <strong class="text-blue-600">печалбата</strong> от всеки продукт.
+          Печалбата е <code class="sql">prodazhna_tsena - dostavna_tsena</code>.
+        </p>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Пример:</h4>
+        <pre><code class="sql"><span class="comment">-- Избираме името и изчисляваме нова колона 'Печалба'</span>
+SELECT prod_naimenovanie AS 'Продукт',
+       (prodazhna_tsena - dostavna_tsena) AS 'Печалба'
+FROM Prodykti;</code></pre>
+
+        <details>
+          <summary>Обяснение ред по ред</summary>
+          <ul class="list-disc list-inside ml-4 mt-2 text-md space-y-2">
+            <li>
+              <code class="sql">(prodazhna_tsena - dostavna_tsena)</code>: Първо
+              казваме на SQL да извърши изчислението за всеки ред. (Скобите не
+              са задължителни, но правят кода по-ясен).
+            </li>
+            <li>
+              <code class="sql">AS 'Печалба'</code>: Резултатът от това
+              изчисление е нова, "виртуална" колона. Ако пропуснем
+              <code class="sql">AS</code>, SQL ще ѝ даде ужасно име по
+              подразбиране (като 'col_1' или 'Expression1001'). С
+              <code class="sql">AS</code> ние я кръщаваме красиво.
+            </li>
+          </ul>
+        </details>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Резултат:</h4>
+        <div class="overflow-x-auto">
+          <table
+            class="w-auto text-left border-collapse rounded-lg overflow-hidden shadow-md mt-4"
+          >
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="p-3">Продукт</th>
+                <th class="p-3">Печалба</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">Лаптоп "Turbo" 15.6"</td>
+                <td class="p-3 border-b">350.00</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">Безжична мишка "Click"</td>
+                <td class="p-3 border-b">24.49</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">Кожен диван "Релакс"</td>
+                <td class="p-3 border-b">350.00</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">... и т.н. ...</td>
+                <td class="p-3 border-b">...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Мини задача 2 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 2:</h5>
+          <p class="mb-3">
+            Искате да изчислите каква ще е цената на продуктите с 20% ДДС.
+            Формулата е <code class="sql">prodazhna_tsena * 1.20</code>. Как ще
+            кръстите новата колона <code class="sql">'Цена с ДДС'</code>?
+          </p>
+          <div id="task2-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="a" />
+              <code class="sql"
+                >SELECT (prodazhna_tsena * 1.20) AS 'Цена с ДДС' FROM
+                Prodykti;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="b" />
+              <code class="sql"
+                >SELECT 'Цена с ДДС' = (prodazhna_tsena * 1.20) FROM
+                Prodykti;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="c" />
+              <code class="sql"
+                >SELECT (prodazhna_tsena * 1.20) FROM Prodykti;</code
+              ></label
+            >
+          </div>
+          <button
+            onclick="checkTask('task2', 'a')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task2-feedback" class="mt-3 text-lg font-semibold"></div>
+        </div>
+      </article>
+
+      <!-- Урок 3: Псевдоними и WHERE / ORDER BY -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          3. Малко известен факт: <code class="sql">AS</code>,
+          <code class="sql">WHERE</code> и <code class="sql">ORDER BY</code>
+        </h3>
+        <p class="mb-4 text-lg">
+          Това е нещо, което обърква 9 от 10 начинаещи! Трябва да знаеш
+          <strong>логическия ред</strong>, по който SQL изпълнява заявката ти:
+        </p>
+        <ol
+          class="list-decimal list-inside ml-4 text-lg space-y-1 mt-2 bg-gray-100 p-4 rounded-lg"
+        >
+          <li><code class="sql">FROM</code> (Първо намира таблицата)</li>
+          <li><code class="sql">WHERE</code> (После филтрира редовете)</li>
+          <li>
+            <code class="sql">SELECT</code> (След това избира колоните и
+            <strong>създава псевдонимите</strong>)
+          </li>
+          <li>
+            <code class="sql">ORDER BY</code> (Най-накрая сортира резултата)
+          </li>
+        </ol>
+
+        <p class="mt-4 text-lg">Какво означава това?</p>
+        <p class="mb-4 text-lg">
+          <strong class="text-red-600">НЕ МОЖЕШ</strong> да използваш псевдоним
+          в <code class="sql">WHERE</code>, защото
+          <code class="sql">WHERE</code> се изпълнява <strong>ПРЕДИ</strong>
+          <code class="sql">SELECT</code> (където се ражда псевдонимът)!
+        </p>
+        <p class="mb-4 text-lg">
+          <strong class="text-green-600">МОЖЕШ</strong> да използваш псевдоним в
+          <code class="sql">ORDER BY</code>, защото
+          <code class="sql">ORDER BY</code> се изпълнява <strong>СЛЕД</strong>
+          <code class="sql">SELECT</code>.
+        </p>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Пример (ГРЕШЕН):</h4>
+        <pre><code class="sql"><span class="comment">-- Тази заявка ще даде ГРЕШКА!</span>
+SELECT prod_naimenovanie AS 'Продукт'
+FROM Prodykti
+WHERE 'Продукт' = 'Лаптоп "Turbo" 15.6"'; <span class="comment">-- ГРЕШКА! 'Продукт' още не съществува.</span></code></pre>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Пример (ПРАВИЛЕН):</h4>
+        <pre><code class="sql"><span class="comment">-- Трябва да използваш ОРИГИНАЛНОТО име в WHERE</span>
+SELECT prod_naimenovanie AS 'Продукт'
+FROM Prodykti
+WHERE prod_naimenovanie = 'Лаптоп "Turbo" 15.6"'; <span class="comment">-- ТАКА Е ПРАВИЛНО!</span></code></pre>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">
+          Пример (Сортиране по псевдоним):
+        </h4>
+        <p class="mb-4">
+          Да намерим печалбата (както в урок 2) и да я сортираме, като започнем
+          от най-голямата.
+        </p>
+        <pre><code class="sql"><span class="comment">-- Тук МОЖЕМ да ползваме псевдонима 'Печалба'</span>
+SELECT prod_naimenovanie AS 'Продукт',
+       (prodazhna_tsena - dostavna_tsena) AS 'Печалба'
+FROM Prodykti
+ORDER BY 'Печалба' DESC; <span class="comment">-- ПРАВИЛНО! ORDER BY се изпълнява последен.</span></code></pre>
+
+        <!-- Мини задача 3 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 3:</h5>
+          <p class="mb-3">
+            Коя от тези заявки ще се изпълни <strong>успешно</strong>?
+          </p>
+          <div id="task3-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task3" value="a" />
+              <code class="sql"
+                >SELECT prodazhna_tsena AS 'Цена' FROM Prodykti WHERE 'Цена' >
+                100;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task3" value="b" />
+              <code class="sql"
+                >SELECT prodazhna_tsena AS 'Цена' FROM Prodykti ORDER BY 'Цена'
+                DESC;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task3" value="c" />
+              <code class="sql"
+                >SELECT prodazhna_tsena FROM Prodykti WHERE 'Цена' > 100 AS
+                'Цена';</code
+              ></label
+            >
+          </div>
+          <button
+            onclick="checkTask('task3', 'b')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task3-feedback" class="mt-3 text-lg font-semibold"></div>
+          <small class="text-gray-600 mt-2 block"
+            >Подсказка: Спомни си логическия ред на изпълнение. Къде се намира
+            <code class="sql">ORDER BY</code> спрямо
+            <code class="sql">SELECT</code>?</small
+          >
+        </div>
+      </article>
+
+      <!-- Урок 4: Пряк път (Без AS) -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          4. Пряк път (Без <code class="sql">AS</code>)
+        </h3>
+        <p class="mb-4 text-lg">
+          В повечето SQL диалекти (като PostgreSQL, MySQL), ключовата дума
+          <code class="sql">AS</code> всъщност не е задължителна. Можеш просто
+          да сложиш "прякора" веднага след името на колоната.
+        </p>
+
+        <h4 class="text-xl font-semibold mt-6 mb-2">Пример:</h4>
+        <pre><code class="sql"><span class="comment">-- Този код работи точно като първия пример</span>
+SELECT prod_naimenovanie 'Продукт',
+       prodazhna_tsena 'Цена'
+FROM Prodykti;</code></pre>
+
+        <p class="mt-4 text-lg">
+          Лично аз
+          <strong class="text-blue-600"
+            >препоръчвам винаги да пишеш <code class="sql">AS</code></strong
+          >, защото прави кода ти 100 пъти по-ясен и лесен за четене от други
+          хора (или от теб самия след 6 месеца).
+        </p>
+
+        <!-- Мини задача 4 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 4:</h5>
+          <p class="mb-3">
+            Коя от тези заявки е <code class="sql">синтактично</code> правилна
+            за създаване на псевдоним 'ИД'?
+          </p>
+          <div id="task4-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task4" value="a" />
+              <code class="sql"
+                >SELECT prod_id AS 'ИД' FROM Prodykti;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task4" value="b" />
+              <code class="sql">SELECT prod_id 'ИД' FROM Prodykti;</code></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task4" value="c" /> И двете са
+              правилни.</label
+            >
+          </div>
+          <button
+            onclick="checkTask('task4', 'c')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task4-feedback" class="mt-3 text-lg font-semibold"></div>
+        </div>
+      </article>
+
+      <!-- Обобщение -->
+      <section
+        class="bg-green-100 border-l-4 border-green-600 p-8 rounded-xl shadow-lg mb-8"
+      >
+        <h2 class="text-3xl font-bold text-green-800 mb-4">
+          🎉 Обобщение на Упражнението
+        </h2>
+        <p class="mb-4 text-lg">
+          Страхотна работа! Псевдонимите са лесни, но изключително мощни.
+        </p>
+        <ul class="list-disc list-inside ml-4 text-lg space-y-2">
+          <li>
+            Използваме <code class="sql">AS</code>, за да дадем "прякор" на
+            колона.
+          </li>
+          <li>
+            Винаги ползваме кавички (<code class="sql">''</code>), ако името на
+            псевдонима има интервали.
+          </li>
+          <li>
+            <strong class="text-blue-600">Най-важното:</strong> Псевдонимите са
+            задължителни за
+            <strong class="text-blue-600">изчисляеми</strong> колони.
+          </li>
+          <li>
+            <strong class="text-red-600">НЕ МОЖЕМ</strong> да ползваме псевдоним
+            в <code class="sql">WHERE</code>.
+          </li>
+          <li>
+            <strong class="text-green-600">МОЖЕМ</strong> да ползваме псевдоним
+            в <code class="sql">ORDER BY</code>.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Финални задачи -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-blue-700 mb-4">
+          🚀 Предизвикателство: 10 Задачи за самостоятелна работа
+        </h2>
+        <p class="mb-6 text-lg">
+          Използвай демо таблицата <code class="sql">Prodykti</code>, за да
+          отговориш как би изглеждала заявката за всяка задача.
+        </p>
+        <ol class="list-decimal list-inside ml-4 space-y-4 text-lg">
+          <li>
+            Избери колоната <code class="sql">prod_naimenovanie</code>, но я
+            кръсти 'Име на Продукта'.
+          </li>
+          <li>
+            Избери <strong>всички</strong> продукти от категория 'Техника', като
+            покажеш само <code class="sql">prod_naimenovanie</code> (с псевдоним
+            'Продукт') и <code class="sql">kategoriq</code> (с псевдоним
+            'Категория').
+          </li>
+          <li>
+            Избери името и цената на всички продукти. Изчисли нова колона
+            <code class="sql">prodazhna_tsena * 0.5</code> и я кръсти 'Цена на
+            Промоция'.
+          </li>
+          <li>
+            Избери името и печалбата (<code class="sql"
+              >prodazhna_tsena - dostavna_tsena</code
+            >) само за продуктите, чиято <strong>доставна цена</strong> (<code
+              class="sql"
+              >dostavna_tsena</code
+            >) е под 50.
+          </li>
+          <li>
+            Избери името и печалбата (с псевдоним 'Печалба') за всички продукти.
+            Сортирай резултата по 'Печалба'
+            <strong class="text-blue-600">във възходящ ред</strong> (от
+            най-малката към най-голямата).
+          </li>
+          <li>
+            Избери <code class="sql">prod_id</code> (с псевдоним 'ID') и
+            <code class="sql">prod_naimenovanie</code> (с псевдоним 'Име') за
+            всички продукти от категория 'Мебели'.
+          </li>
+          <li>
+            (Трудна) Избери името на продукта и изчисли надценката в проценти.
+            Формулата е
+            <code class="sql">(prodazhna_tsena / dostavna_tsena) * 100</code>.
+            Кръсти новата колона 'Надценка %'.
+          </li>
+          <li>
+            Отпечатай името и категорията на всички продукти, чието
+            <strong>оригинално име</strong>
+            <code class="sql">prod_naimenovanie</code> съдържа думата 'Лаптоп'.
+            Използвай псевдоними за колоните в резултата.
+          </li>
+          <li>
+            Избери името и цената на само 3-те най-скъпи продукта. Кръсти
+            колоните 'Стока' и 'Продажна Цена'.
+          </li>
+          <li>
+            Избери името и изчисли
+            <code class="sql">prodazhna_tsena + 10</code> (такса доставка).
+            Кръсти новата колона 'Крайна Цена'.
+          </li>
+        </ol>
+      </section>
+    </div>
+    <!-- Футър -->
+    <footer class="text-center p-6 text-gray-600">
+      <p>Интерактивен Урок: SQL Псевдоними. инж. Пламена Янева</p>
+    </footer>
+
+    <!-- JavaScript за интерактивните задачи -->
+    <script>
+      function checkTask(taskId, correctAnswer) {
+        const options = document.getElementsByName(taskId);
+        const feedbackEl = document.getElementById(taskId + "-feedback");
+        let selectedValue = null;
+
+        for (const option of options) {
+          if (option.checked) {
+            selectedValue = option.value;
+            break;
+          }
+        }
+
+        if (selectedValue === null) {
+          feedbackEl.textContent = "Моля, изберете отговор.";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-yellow-700";
+        } else if (selectedValue === correctAnswer) {
+          feedbackEl.textContent = "✅ Правилно! Страхотна работа!";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-green-700";
+        } else {
+          feedbackEl.textContent = "❌ Грешка, опитай пак. Помисли още малко!";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-red-700";
+        }
+      }
+    </script>
+  </body>
+</html>
