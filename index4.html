@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивен Урок: SQL DELETE</title>
+    <!-- Зареждане на Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Шрифт Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      /* Стил за SQL код */
+      code.sql {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1.1em;
+        color: #f8fafc;
+        background-color: #1e293b;
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+      pre code.sql {
+        display: block;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      code.sql .comment {
+        color: #64748b;
+      }
+      code.sql .keyword {
+        color: #facc15;
+      }
+      code.sql .string {
+        color: #a5f3fc;
+      }
+
+      details > summary {
+        cursor: pointer;
+        font-weight: 500;
+        color: #2563eb;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    <div class="container max-w-5xl mx-auto p-6 lg:p-10">
+      <!-- Заглавие -->
+      <header
+        class="bg-white p-8 rounded-xl shadow-lg mb-8 border-b-4 border-red-600"
+      >
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          Урок: Изтриване на данни с <code class="sql">DELETE</code>
+        </h1>
+        <p class="text-xl text-gray-600">
+          Как да премахваме данни завинаги (и защо трябва да ни е страх от тази
+          команда).
+        </p>
+      </header>
+
+      <!-- Въведение -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-red-700 mb-4">Внимавай с бутона!</h2>
+        <p class="mb-4 text-lg">
+          Командата <code class="sql">DELETE</code> премахва редове от таблица.
+          За разлика от компютъра ти, тук (обикновено) няма
+          <strong>Recycle Bin</strong> или кошче. Изтритото е изтрито.
+        </p>
+
+        <div
+          class="mt-6 bg-red-50 border border-red-300 p-4 rounded-lg text-red-800"
+        >
+          <strong class="font-bold text-xl"
+            >⚠️ Златното правило на DELETE:</strong
+          >
+          <p class="mt-2 text-lg">
+            Точно както при UPDATE: Никога не пускай
+            <code class="sql">DELETE</code> без <code class="sql">WHERE</code>,
+            освен ако не искаш да изтриеш <strong>АБСОЛЮТНО ВСИЧКО</strong> от
+            таблицата и да останеш с празна таблица!
+          </p>
+        </div>
+      </section>
+
+      <!-- Демо Таблица -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-blue-700 mb-4">
+          Нашата Демо Таблица: <code class="sql">Slujiteli</code>
+        </h2>
+        <p class="mb-4 text-lg">Нека видим кой ще бъде "уволнен" днес.</p>
+
+        <div class="overflow-x-auto">
+          <table
+            class="w-full text-left border-collapse rounded-lg overflow-hidden shadow-md mt-4"
+          >
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="p-3 border-b border-gray-600">id</th>
+                <th class="p-3 border-b border-gray-600">ime</th>
+                <th class="p-3 border-b border-gray-600">otdel</th>
+                <th class="p-3 border-b border-gray-600">zaplata</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">1</td>
+                <td class="p-3 border-b">Иван Иванов</td>
+                <td class="p-3 border-b">IT</td>
+                <td class="p-3 border-b">3000</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">2</td>
+                <td class="p-3 border-b">Петър Петров</td>
+                <td class="p-3 border-b">Маркетинг</td>
+                <td class="p-3 border-b">2000</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">3</td>
+                <td class="p-3 border-b">Георги Георгиев</td>
+                <td class="p-3 border-b">Стажант</td>
+                <td class="p-3 border-b">800</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">4</td>
+                <td class="p-3 border-b">Мария Димитрова</td>
+                <td class="p-3 border-b">Стажант</td>
+                <td class="p-3 border-b">800</td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border-b">5</td>
+                <td class="p-3 border-b">Спам Бот</td>
+                <td class="p-3 border-b">Вреден</td>
+                <td class="p-3 border-b">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Урок 1: Изтриване на конкретен ред -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          1. Изтриване на един ред
+        </h3>
+        <p class="mb-4 text-lg">
+          Най-често трием по <strong>ID</strong> (уникалния номер), за да сме
+          сигурни, че махаме точно когото трябва.
+        </p>
+        <p class="mb-4 text-lg">
+          <strong>Сценарий:</strong> Открихме, че служител с ID 5 е "Спам Бот".
+          Да го махнем!
+        </p>
+
+        <pre><code class="sql">DELETE FROM Slujiteli
+WHERE id = 5;</code></pre>
+
+        <details>
+          <summary>Обяснение ред по ред</summary>
+          <ul class="list-disc list-inside ml-4 mt-2 text-md space-y-2">
+            <li>
+              <code class="sql">DELETE FROM Slujiteli</code>: "Искам да трия от
+              таблица Служители". (Забележи: Тук не пишем имена на колони като
+              <code class="sql">DELETE ime FROM...</code>, защото DELETE трие
+              целия ред, а не само една клетка!)
+            </li>
+            <li>
+              <code class="sql">WHERE id = 5</code>: "...но само реда, където ID
+              е 5".
+            </li>
+          </ul>
+        </details>
+
+        <!-- Мини задача 1 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 1:</h5>
+          <p class="mb-3">Коя команда е грешна?</p>
+          <div id="task1-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task1" value="a" />
+              <code class="sql"
+                >DELETE * FROM Slujiteli WHERE id = 1;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task1" value="b" />
+              <code class="sql"
+                >DELETE FROM Slujiteli WHERE id = 1;</code
+              ></label
+            >
+          </div>
+          <button
+            onclick="checkTask('task1', 'a')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task1-feedback" class="mt-3 text-lg font-semibold"></div>
+          <small class="text-gray-500 mt-2 block"
+            >Подсказка: При SELECT пишем *, но при DELETE не ни трябва, защото
+            трием целия ред.</small
+          >
+        </div>
+      </article>
+
+      <!-- Урок 2: Изтриване на група редове -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          2. Изтриване на много редове
+        </h3>
+        <p class="mb-4 text-lg">
+          Можем да изтрием цяла група хора наведнъж, ако отговарят на условието.
+        </p>
+        <p class="mb-4 text-lg">
+          <strong>Сценарий:</strong> Стажантската програма приключи. Трябва да
+          изтрием всички стажанти.
+        </p>
+
+        <pre><code class="sql">DELETE FROM Slujiteli
+WHERE otdel = 'Стажант';</code></pre>
+
+        <p class="mt-4 text-gray-600">
+          Това ще изтрие Георги (id 3) и Мария (id 4), защото и двамата са
+          стажанти.
+        </p>
+
+        <!-- Мини задача 2 -->
+        <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+          <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 2:</h5>
+          <p class="mb-3">
+            Как ще изтриете всички служители, които получават заплата под 1000
+            лева?
+          </p>
+          <div id="task2-options">
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="a" />
+              <code class="sql"
+                >DELETE FROM Slujiteli WHERE zaplata < 1000;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="b" />
+              <code class="sql"
+                >REMOVE FROM Slujiteli IF zaplata < 1000;</code
+              ></label
+            >
+            <label class="block mb-2"
+              ><input type="radio" name="task2" value="c" />
+              <code class="sql"
+                >DELETE Slujiteli WHERE zaplata < 1000;</code
+              ></label
+            >
+          </div>
+          <button
+            onclick="checkTask('task2', 'a')"
+            class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Провери
+          </button>
+          <div id="task2-feedback" class="mt-3 text-lg font-semibold"></div>
+        </div>
+      </article>
+
+      <!-- Урок 3: Изтриване на ВСИЧКО -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          3. Апокалипсисът (Изтриване на всичко)
+        </h3>
+        <p class="mb-4 text-lg">
+          Ако пропуснете <code class="sql">WHERE</code>, таблицата става празна.
+          Структурата ѝ (колоните) остава, но данните изчезват.
+        </p>
+
+        <pre><code class="sql">DELETE FROM Slujiteli; 
+<span class="comment">-- БУМ! Няма повече служители. Фирмата фалира.</span></code></pre>
+
+        <div class="mt-4 p-4 bg-yellow-50 rounded border border-yellow-200">
+          <strong class="font-semibold text-yellow-800"
+            >Pro Tip: TRUNCATE</strong
+          >
+          <p class="mt-2 text-gray-700">
+            Има и друга команда:
+            <code class="sql">TRUNCATE TABLE Slujiteli;</code>. Тя прави същото
+            (изтрива всичко), но е <strong>много по-бърза</strong> за огромни
+            таблици. Разликата е, че TRUNCATE често нулира и брояча за ID-та
+            (започва пак от 1), докато DELETE продължава откъдето е стигнал.
+          </p>
+        </div>
+      </article>
+
+      <!-- Урок 4: Soft Delete -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          4. "Меко изтриване" (Soft Delete)
+        </h3>
+        <p class="mb-4 text-lg">
+          В модерните системи рядко трием данни наистина. Вместо това правим
+          <strong>Soft Delete</strong>. Добавяме колона
+          <code class="sql">is_deleted</code> или
+          <code class="sql">status</code>.
+        </p>
+        <p class="mb-4 text-lg">
+          Вместо <code class="sql">DELETE</code>, ние правим
+          <code class="sql">UPDATE</code>!
+        </p>
+
+        <pre><code class="sql"><span class="comment">-- Вместо да го изтрием завинаги...</span>
+UPDATE Slujiteli 
+SET status = 'inactive' 
+WHERE id = 1;
+
+<span class="comment">-- И после, когато търсим активни служители:</span>
+SELECT * FROM Slujiteli WHERE status = 'active';</code></pre>
+
+        <p class="mt-2">
+          Така данните са скрити, но ако потрябват за историята - още са там!
+        </p>
+      </article>
+
+      <!-- Урок 5: Безопасност -->
+      <section
+        class="bg-green-50 border-l-4 border-green-600 p-8 rounded-xl shadow-lg mb-8"
+      >
+        <h2 class="text-3xl font-bold text-green-800 mb-4">
+          🛡️ Как да се предпазим? (Safe Delete Trick)
+        </h2>
+        <p class="text-lg">
+          Правилото е същото като при UPDATE.
+          <strong>Първо чети, после трий.</strong>
+        </p>
+        <p class="mt-2 font-mono bg-white p-3 rounded shadow-sm">
+          1. <span class="text-blue-600">SELECT</span> * FROM Slujiteli
+          <span class="text-red-600">WHERE otdel = 'IT'</span>;<br />
+          (Проверяваш резултата: "Олеле, щях да изтрия и шефа на IT!")<br />
+          2. Коригираш условието.<br />
+          3. <span class="text-red-600">DELETE</span> FROM Slujiteli
+          <span class="text-red-600">WHERE otdel = 'IT' AND role != 'Boss'</span
+          >;
+        </p>
+      </section>
+
+      <!-- Финални задачи -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-blue-700 mb-4">
+          🚀 Предизвикателство: 10 Задачи
+        </h2>
+        <p class="mb-6 text-lg">
+          Напиши (мислено или на лист) SQL заявките за следните ситуации:
+        </p>
+
+        <div class="space-y-4">
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              1. Изтрий служителя с id 2.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE id = 2;</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              2. Изтрий всички служители от отдел 'Маркетинг'.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE otdel = 'Маркетинг';</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              3. Изтрий всички, които се казват 'Иван Иванов'.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE ime = 'Иван Иванов';</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              4. Изтрий всички служители със заплата над 5000 (скъпи са ни).
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE zaplata > 5000;</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              5. Изтрий всички (без TRUNCATE).
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli;</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              6. Изтрий служители, които са от отдел 'IT' И заплатата им е под
+              1000.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE otdel = 'IT' AND zaplata <
+              1000;</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              7. (Трудно) Изтрий всички, чието име започва с буквата 'С'.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE ime LIKE 'С%';</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              8. (Logic) Изтрий всички, които НЕ са от отдел 'IT'.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE otdel != 'IT'; <br />-- (или WHERE
+              otdel <> 'IT')</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              9. Направи Soft Delete на id 3 (status става 'deleted').
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >UPDATE Slujiteli SET status = 'deleted' WHERE id = 3;</code
+            >
+          </details>
+
+          <details class="bg-gray-50 p-4 rounded-lg border">
+            <summary class="font-bold text-lg">
+              10. Изтрий всички стажанти с ID по-голямо от 100.
+            </summary>
+            <code class="sql block mt-2 p-2 rounded"
+              >DELETE FROM Slujiteli WHERE otdel = 'Стажант' AND id > 100;</code
+            >
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <!-- JavaScript за задачите -->
+    <script>
+      function checkTask(taskId, correctAnswer) {
+        const options = document.getElementsByName(taskId);
+        const feedbackEl = document.getElementById(taskId + "-feedback");
+        let selectedValue = null;
+
+        for (const option of options) {
+          if (option.checked) {
+            selectedValue = option.value;
+            break;
+          }
+        }
+
+        if (selectedValue === null) {
+          feedbackEl.textContent = "Моля, изберете отговор.";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-yellow-700";
+        } else if (selectedValue === correctAnswer) {
+          feedbackEl.textContent = "✅ Правилно!";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-green-700";
+        } else {
+          feedbackEl.textContent = "❌ Грешка. Опитай пак!";
+          feedbackEl.className = "mt-3 text-lg font-semibold text-red-700";
+        }
+      }
+    </script>
+  </body>
+</html>
