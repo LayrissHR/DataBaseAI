@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Интерактивен Урок: Основи на CRUD</title>
+    <!-- Зареждане на Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Шрифт Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      /* Стил за SQL код */
+      code.sql {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1.1em;
+        color: #f8fafc;
+        background-color: #1e293b;
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+      pre code.sql {
+        display: block;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      code.sql .comment {
+        color: #64748b;
+      }
+      code.sql .keyword {
+        color: #facc15;
+      }
+      code.sql .string {
+        color: #a5f3fc;
+      }
+
+      details > summary {
+        cursor: pointer;
+        font-weight: 500;
+        color: #2563eb;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    <div class="container max-w-5xl mx-auto p-6 lg:p-10">
+      <!-- Заглавие -->
+      <header
+        class="bg-white p-8 rounded-xl shadow-lg mb-8 border-b-4 border-purple-600"
+      >
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Основи на CRUD</h1>
+        <p class="text-xl text-gray-600">
+          Четирите стълба на всяко приложение: <br /><strong>C</strong>reate,
+          <strong>R</strong>ead, <strong>U</strong>pdate,
+          <strong>D</strong>elete
+        </p>
+      </header>
+
+      <!-- Въведение -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-purple-700 mb-4">Какво е CRUD?</h2>
+        <p class="mb-4 text-lg">
+          CRUD (произнася се "круд") е съкращение, което описва четирите основни
+          действия, които можем да извършваме с данни в една компютърна система.
+        </p>
+        <p class="mb-6 text-lg">
+          Без значение дали правиш онлайн магазин, социална мрежа или игра, ти
+          винаги правиш тези 4 неща:
+        </p>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center"
+        >
+          <div class="bg-green-100 p-6 rounded-lg border border-green-200">
+            <h3 class="text-2xl font-bold text-green-800">C</h3>
+            <p class="font-semibold">Create</p>
+            <p class="text-sm text-gray-600 mt-2">Създаване</p>
+            <code
+              class="sql block mt-2 bg-green-800 text-white p-1 rounded text-sm"
+              >INSERT</code
+            >
+          </div>
+          <div class="bg-blue-100 p-6 rounded-lg border border-blue-200">
+            <h3 class="text-2xl font-bold text-blue-800">R</h3>
+            <p class="font-semibold">Read</p>
+            <p class="text-sm text-gray-600 mt-2">Четене</p>
+            <code
+              class="sql block mt-2 bg-blue-800 text-white p-1 rounded text-sm"
+              >SELECT</code
+            >
+          </div>
+          <div class="bg-yellow-100 p-6 rounded-lg border border-yellow-200">
+            <h3 class="text-2xl font-bold text-yellow-800">U</h3>
+            <p class="font-semibold">Update</p>
+            <p class="text-sm text-gray-600 mt-2">Промяна</p>
+            <code
+              class="sql block mt-2 bg-yellow-800 text-white p-1 rounded text-sm"
+              >UPDATE</code
+            >
+          </div>
+          <div class="bg-red-100 p-6 rounded-lg border border-red-200">
+            <h3 class="text-2xl font-bold text-red-800">D</h3>
+            <p class="font-semibold">Delete</p>
+            <p class="text-sm text-gray-600 mt-2">Изтриване</p>
+            <code
+              class="sql block mt-2 bg-red-800 text-white p-1 rounded text-sm"
+              >DELETE</code
+            >
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-center"></div>
+      </section>
+
+      <!-- Подробна SQL Server CRUD Демонстрация -->
+      <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">
+          Практическо ръководство за SQL Server
+        </h2>
+        <p class="mb-4 text-lg">
+          Нека разгледаме пълен пример, започвайки от нулата – създаване на база
+          данни и таблица, до манипулация на данните. Този процес е валиден за
+          повечето релационни бази данни (SQL Server, MySQL, PostgreSQL).
+        </p>
+
+        <!-- 0. Setup -->
+        <div
+          class="mb-8 border-l-4 border-gray-500 pl-4 bg-gray-50 p-4 rounded-r-lg"
+        >
+          <h3 class="text-xl font-bold text-gray-700">
+            0. Подготовка на средата (CREATE)
+          </h3>
+          <p class="text-gray-700 mb-2">
+            Преди да изпълняваме CRUD операции върху записи, трябва да създадем
+            "дома" за нашите данни.
+          </p>
+
+          <p class="font-semibold mt-2">Стъпка 1: Създаване на База Данни</p>
+          <pre><code class="sql">CREATE DATABASE SchoolDB;
+USE SchoolDB; <span class="comment">-- Избираме базата, за да работим в нея</span></code></pre>
+
+          <p class="font-semibold mt-4">Стъпка 2: Създаване на Таблица</p>
+          <pre><code class="sql">CREATE TABLE Students (
+    StudentID int IDENTITY(1,1) PRIMARY KEY, <span class="comment">-- Автоматично нарастващо ID</span>
+    Name varchar(100) NOT NULL,              <span class="comment">-- Име (задължително)</span>
+    Email varchar(100),                      <span class="comment">-- Имейл</span>
+    Age int                                  <span class="comment">-- Възраст</span>
+);</code></pre>
+          <p class="text-sm text-gray-600 mt-2">
+            Използваме <code class="sql">IDENTITY(1,1)</code>, за да може SQL
+            автоматично да генерира уникален номер за всеки нов ученик,
+            започвайки от 1.
+          </p>
+        </div>
+
+        <!-- C: Create -->
+        <div
+          class="mb-8 border-l-4 border-green-500 pl-4 bg-green-50 p-4 rounded-r-lg"
+        >
+          <h3 class="text-xl font-bold text-green-700">
+            1. CREATE (Създаване на данни)
+          </h3>
+          <p class="text-gray-700 mb-2">
+            Операцията <strong>CREATE</strong> в контекста на данните се
+            извършва чрез командата <code class="sql">INSERT</code>. Тя добавя
+            нови записи в таблицата.
+          </p>
+
+          <p class="font-semibold mt-2">Синтаксис:</p>
+          <pre><code class="sql">INSERT INTO table_name (column1, column2, column3, ...)
+VALUES (value1, value2, value3, ...);</code></pre>
+
+          <p class="font-semibold mt-4">Пример 1: Добавяне на един ученик</p>
+          <pre><code class="sql">INSERT INTO Students (Name, Email, Age)
+VALUES ('Иван Петров', 'ivan@mail.bg', 16);</code></pre>
+
+          <p class="font-semibold mt-4">
+            Пример 2: Добавяне на множество записи наведнъж
+          </p>
+          <pre><code class="sql">INSERT INTO Students (Name, Email, Age)
+VALUES 
+('Мария Иванова', 'maria@test.com', 15),
+('Георги Николов', 'gosho@demo.bg', 17),
+('Елена Димитрова', 'elena@school.bg', 16);</code></pre>
+
+          <!-- Мини Задача 1 -->
+          <div class="mt-4 bg-white p-4 rounded border border-green-200">
+            <h5 class="font-bold text-green-800">⚡ Мини-Задача 1:</h5>
+            <p class="text-sm mb-2">
+              Коя е правилната команда за добавяне на нов ученик?
+            </p>
+            <div id="mt1-options">
+              <label
+                class="block mb-1 cursor-pointer hover:bg-green-50 p-1 rounded"
+                ><input type="radio" name="mt1" value="a" />
+                <code class="text-xs"
+                  >ADD Student VALUES ('Ани', 12);</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-green-50 p-1 rounded"
+                ><input type="radio" name="mt1" value="b" />
+                <code class="text-xs"
+                  >INSERT INTO Students (Name, Age) VALUES ('Ани', 12);</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-green-50 p-1 rounded"
+                ><input type="radio" name="mt1" value="c" />
+                <code class="text-xs">CREATE ROW ('Ани', 12);</code></label
+              >
+            </div>
+            <button
+              onclick="checkMiniTask('mt1', 'b')"
+              class="mt-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            >
+              Провери
+            </button>
+            <p id="mt1-feedback" class="mt-1 text-sm font-bold"></p>
+          </div>
+        </div>
+
+        <!-- R: Read -->
+        <div
+          class="mb-8 border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-r-lg"
+        >
+          <h3 class="text-xl font-bold text-blue-700">
+            2. READ (Четене на данни)
+          </h3>
+          <p class="text-gray-700 mb-2">
+            Операцията <strong>READ</strong> използва командата
+            <code class="sql">SELECT</code>. Това е начинът да извлечем данни,
+            за да ги покажем на потребителя.
+          </p>
+
+          <p class="font-semibold mt-2">Синтаксис:</p>
+          <pre><code class="sql">SELECT column1, column2 FROM table_name WHERE condition;</code></pre>
+
+          <p class="font-semibold mt-4">Примери:</p>
+          <pre><code class="sql"><span class="comment">-- 1. Извличане на ВСИЧКИ данни</span>
+SELECT * FROM Students;
+
+<span class="comment">-- 2. Извличане само на конкретни колони (по-бързо и сигурно)</span>
+SELECT Name, Age FROM Students;
+
+<span class="comment">-- 3. Извличане с условие (Филтриране)</span>
+SELECT Name, Email 
+FROM Students 
+WHERE Age >= 16;  <span class="comment">-- Само ученици на 16 или повече години</span></code></pre>
+
+          <!-- Мини Задача 2 -->
+          <div class="mt-4 bg-white p-4 rounded border border-blue-200">
+            <h5 class="font-bold text-blue-800">⚡ Мини-Задача 2:</h5>
+            <p class="text-sm mb-2">
+              Искаме имената само на учениците на 18 години.
+            </p>
+            <div id="mt2-options">
+              <label
+                class="block mb-1 cursor-pointer hover:bg-blue-50 p-1 rounded"
+                ><input type="radio" name="mt2" value="a" />
+                <code class="text-xs"
+                  >SELECT Name FROM Students WHERE Age = 18;</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-blue-50 p-1 rounded"
+                ><input type="radio" name="mt2" value="b" />
+                <code class="text-xs"
+                  >SELECT * FROM Students WHERE Age > 18;</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-blue-50 p-1 rounded"
+                ><input type="radio" name="mt2" value="c" />
+                <code class="text-xs"
+                  >GET Name FROM Students WHERE Age IS 18;</code
+                ></label
+              >
+            </div>
+            <button
+              onclick="checkMiniTask('mt2', 'a')"
+              class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            >
+              Провери
+            </button>
+            <p id="mt2-feedback" class="mt-1 text-sm font-bold"></p>
+          </div>
+        </div>
+
+        <!-- U: Update -->
+        <div
+          class="mb-8 border-l-4 border-yellow-500 pl-4 bg-yellow-50 p-4 rounded-r-lg"
+        >
+          <h3 class="text-xl font-bold text-yellow-700">
+            3. UPDATE (Актуализиране)
+          </h3>
+          <p class="text-gray-700 mb-2">
+            Операцията <strong>UPDATE</strong> се използва за промяна на
+            съществуващи записи.
+            <strong class="text-red-600">Внимание:</strong> Винаги използвайте
+            <code class="sql">WHERE</code>, освен ако не искате да промените
+            всички записи!
+          </p>
+
+          <p class="font-semibold mt-2">Синтаксис:</p>
+          <pre><code class="sql">UPDATE table_name
+SET column1 = value1, column2 = value2, ...
+WHERE condition;</code></pre>
+
+          <p class="font-semibold mt-4">Пример:</p>
+          <pre><code class="sql"><span class="comment">-- Иван има рожден ден и си сменя имейла</span>
+UPDATE Students
+SET Age = 17, Email = 'ivan.new@mail.bg'
+WHERE Name = 'Иван Петров'; <span class="comment">-- По-добре е да се ползва StudentID!</span></code></pre>
+
+          <!-- Мини Задача 3 -->
+          <div class="mt-4 bg-white p-4 rounded border border-yellow-200">
+            <h5 class="font-bold text-yellow-800">⚡ Мини-Задача 3:</h5>
+            <p class="text-sm mb-2">
+              Забравихте <code>WHERE</code> клаузата при
+              <code>UPDATE Students SET Age = 20</code>! Какво ще стане?
+            </p>
+            <div id="mt3-options">
+              <label
+                class="block mb-1 cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                ><input type="radio" name="mt3" value="a" /> Ще даде
+                грешка.</label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                ><input type="radio" name="mt3" value="b" /> Ще промени само
+                първия ред.</label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-yellow-50 p-1 rounded"
+                ><input type="radio" name="mt3" value="c" /> Ще направи ВСИЧКИ
+                ученици на 20 години.</label
+              >
+            </div>
+            <button
+              onclick="checkMiniTask('mt3', 'c')"
+              class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            >
+              Провери
+            </button>
+            <p id="mt3-feedback" class="mt-1 text-sm font-bold"></p>
+          </div>
+        </div>
+
+        <!-- D: Delete -->
+        <div
+          class="mb-8 border-l-4 border-red-500 pl-4 bg-red-50 p-4 rounded-r-lg"
+        >
+          <h3 class="text-xl font-bold text-red-700">4. DELETE (Изтриване)</h3>
+          <p class="text-gray-700 mb-2">
+            Операцията <strong>DELETE</strong> премахва записи от базата данни.
+            Тази операция обикновено е необратима.
+          </p>
+
+          <p class="font-semibold mt-2">Синтаксис:</p>
+          <pre><code class="sql">DELETE FROM table_name WHERE condition;</code></pre>
+
+          <p class="font-semibold mt-4">Пример:</p>
+          <pre><code class="sql"><span class="comment">-- Изтриване на конкретен ученик по уникално ID (най-безопасно)</span>
+DELETE FROM Students 
+WHERE StudentID = 2;
+
+<span class="comment">-- Изтриване на всички ученици от определена възрастова група</span>
+DELETE FROM Students
+WHERE Age < 18;</code></pre>
+
+          <!-- Мини Задача 4 -->
+          <div class="mt-4 bg-white p-4 rounded border border-red-200">
+            <h5 class="font-bold text-red-800">⚡ Мини-Задача 4:</h5>
+            <p class="text-sm mb-2">
+              Искаме безопасно да изтрием ученик с ID 10.
+            </p>
+            <div id="mt4-options">
+              <label
+                class="block mb-1 cursor-pointer hover:bg-red-50 p-1 rounded"
+                ><input type="radio" name="mt4" value="a" />
+                <code class="text-xs"
+                  >DELETE FROM Students WHERE StudentID = 10;</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-red-50 p-1 rounded"
+                ><input type="radio" name="mt4" value="b" />
+                <code class="text-xs"
+                  >DELETE * FROM Students WHERE ID = 10;</code
+                ></label
+              >
+              <label
+                class="block mb-1 cursor-pointer hover:bg-red-50 p-1 rounded"
+                ><input type="radio" name="mt4" value="c" />
+                <code class="text-xs"
+                  >REMOVE FROM Students WHERE StudentID = 10;</code
+                ></label
+              >
+            </div>
+            <button
+              onclick="checkMiniTask('mt4', 'a')"
+              class="mt-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+            >
+              Провери
+            </button>
+            <p id="mt4-feedback" class="mt-1 text-sm font-bold"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CRUD в Web Development -->
+      <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          CRUD в Уеб Разработката
+        </h3>
+        <p class="mb-4 text-lg">
+          Ако се занимаваш с уеб сайтове (API), ще видиш, че CRUD отговаря точно
+          на HTTP методите, които браузърите използват.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse mt-4">
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="p-3">Действие (CRUD)</th>
+                <th class="p-3">SQL Команда</th>
+                <th class="p-3">HTTP Метод (Web)</th>
+                <th class="p-3">Пример от живота</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white border text-gray-800">
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-bold text-green-700">Create</td>
+                <td class="p-3"><code class="sql text-sm">INSERT</code></td>
+                <td class="p-3">
+                  <code class="text-sm bg-gray-200 px-2 py-1 rounded"
+                    >POST</code
+                  >
+                </td>
+                <td class="p-3">Публикуване на пост във Facebook</td>
+              </tr>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-bold text-blue-700">Read</td>
+                <td class="p-3"><code class="sql text-sm">SELECT</code></td>
+                <td class="p-3">
+                  <code class="text-sm bg-gray-200 px-2 py-1 rounded">GET</code>
+                </td>
+                <td class="p-3">Разглеждане на News Feed</td>
+              </tr>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-bold text-yellow-700">Update</td>
+                <td class="p-3"><code class="sql text-sm">UPDATE</code></td>
+                <td class="p-3">
+                  <code class="text-sm bg-gray-200 px-2 py-1 rounded"
+                    >PUT / PATCH</code
+                  >
+                </td>
+                <td class="p-3">Редактиране на коментар</td>
+              </tr>
+              <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-bold text-red-700">Delete</td>
+                <td class="p-3"><code class="sql text-sm">DELETE</code></td>
+                <td class="p-3">
+                  <code class="text-sm bg-gray-200 px-2 py-1 rounded"
+                    >DELETE</code
+                  >
+                </td>
+                <td class="p-3">Изтриване на снимка</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- Тест: Познай операцията -->
+      <section
+        class="bg-purple-50 border-l-4 border-purple-600 p-8 rounded-xl shadow-lg mb-8"
+      >
+        <h2 class="text-3xl font-bold text-purple-800 mb-4">
+          🧠 Тест: Познай коя буква от CRUD е?
+        </h2>
+
+        <div class="space-y-6">
+          <!-- Въпрос 1 -->
+          <div class="bg-white p-4 rounded shadow-sm">
+            <p class="font-bold mb-2">
+              1. Потребител търси "iPhone 15" в търсачката на магазин.
+            </p>
+            <div id="q1-options" class="space-x-2">
+              <button
+                onclick="checkAnswer('q1', 'R')"
+                class="px-4 py-2 bg-gray-200 hover:bg-blue-200 rounded"
+              >
+                C
+              </button>
+              <button
+                onclick="checkAnswer('q1', 'R')"
+                class="px-4 py-2 bg-gray-200 hover:bg-blue-200 rounded"
+              >
+                R
+              </button>
+              <button
+                onclick="checkAnswer('q1', 'R')"
+                class="px-4 py-2 bg-gray-200 hover:bg-blue-200 rounded"
+              >
+                U
+              </button>
+              <button
+                onclick="checkAnswer('q1', 'R')"
+                class="px-4 py-2 bg-gray-200 hover:bg-blue-200 rounded"
+              >
+                D
+              </button>
+            </div>
+            <p id="q1-result" class="mt-2 text-sm font-bold"></p>
+          </div>
+
+          <!-- Въпрос 2 -->
+          <div class="bg-white p-4 rounded shadow-sm">
+            <p class="font-bold mb-2">
+              2. Потребител клика "Купи" и се създава нова поръчка.
+            </p>
+            <div id="q2-options" class="space-x-2">
+              <button
+                onclick="checkAnswer('q2', 'C')"
+                class="px-4 py-2 bg-gray-200 hover:bg-green-200 rounded"
+              >
+                C
+              </button>
+              <button
+                onclick="checkAnswer('q2', 'C')"
+                class="px-4 py-2 bg-gray-200 hover:bg-green-200 rounded"
+              >
+                R
+              </button>
+              <button
+                onclick="checkAnswer('q2', 'C')"
+                class="px-4 py-2 bg-gray-200 hover:bg-green-200 rounded"
+              >
+                U
+              </button>
+              <button
+                onclick="checkAnswer('q2', 'C')"
+                class="px-4 py-2 bg-gray-200 hover:bg-green-200 rounded"
+              >
+                D
+              </button>
+            </div>
+            <p id="q2-result" class="mt-2 text-sm font-bold"></p>
+          </div>
+
+          <!-- Въпрос 3 -->
+          <div class="bg-white p-4 rounded shadow-sm">
+            <p class="font-bold mb-2">3. Потребител сменя паролата си.</p>
+            <div id="q3-options" class="space-x-2">
+              <button
+                onclick="checkAnswer('q3', 'U')"
+                class="px-4 py-2 bg-gray-200 hover:bg-yellow-200 rounded"
+              >
+                C
+              </button>
+              <button
+                onclick="checkAnswer('q3', 'U')"
+                class="px-4 py-2 bg-gray-200 hover:bg-yellow-200 rounded"
+              >
+                R
+              </button>
+              <button
+                onclick="checkAnswer('q3', 'U')"
+                class="px-4 py-2 bg-gray-200 hover:bg-yellow-200 rounded"
+              >
+                U
+              </button>
+              <button
+                onclick="checkAnswer('q3', 'U')"
+                class="px-4 py-2 bg-gray-200 hover:bg-yellow-200 rounded"
+              >
+                D
+              </button>
+            </div>
+            <p id="q3-result" class="mt-2 text-sm font-bold"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Задачи за самостоятелна работа -->
+      <section
+        class="bg-white p-8 rounded-xl shadow-lg mb-8 border-t-8 border-gray-800"
+      >
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">
+          📝 Задачи за самостоятелна работа
+        </h2>
+        <p class="mb-4 text-lg">
+          Изпълнете следните задачи в тетрадката или в SQL редактор.
+          <strong class="text-red-600">Внимание:</strong> Отговорите не са
+          предоставени, за да помислите сами!
+        </p>
+        <ol class="list-decimal list-inside space-y-4 text-gray-700 text-lg">
+          <li>
+            <strong>Създайте</strong> (CREATE) нова таблица
+            <code>Teachers</code> с колони <code>ID</code>, <code>Name</code> и
+            <code>Subject</code>.
+          </li>
+          <li>
+            <strong>Вмъкнете</strong> (INSERT) 3-ма ваши любими учители в
+            таблицата.
+          </li>
+          <li>
+            <strong>Изберете</strong> (SELECT) имената на всички учители, които
+            преподават "Математика" (ако нямате такива, измислете си).
+          </li>
+          <li>
+            <strong>Променете</strong> (UPDATE) предмета на втория учител на
+            "Информатика".
+          </li>
+          <li><strong>Изтрийте</strong> (DELETE) учителя с ID = 1.</li>
+          <li>
+            Върнете се към таблица <code>Students</code>. Добавете себе си като
+            нов ученик с вашите данни.
+          </li>
+          <li>
+            Увеличете възрастта на <strong>всички</strong> ученици с 1 година
+            (защото е минала една година).
+          </li>
+          <li>
+            Изтрийте всички ученици, които <strong>нямат</strong> въведен имейл
+            (т.е. Email IS NULL).
+          </li>
+          <li>
+            Намерете ученика с име "Иван Петров" и променете името му на "Иван
+            Иванов".
+          </li>
+          <li>
+            Изберете имената и възрастта на всички ученици, сортирани от
+            най-младия към най-стария.
+          </li>
+        </ol>
+        <div
+          class="mt-6 p-4 bg-gray-100 rounded text-center text-sm text-gray-500"
+        >
+          Основи на CRUD операциите в SQL. инж. Пламена Янева.
+        </div>
+      </section>
+    </div>
+
+    <!-- JavaScript за тестовете -->
+    <script>
+      function checkAnswer(questionId, correctLetter) {
+        const resultEl = document.getElementById(`${questionId}-result`);
+
+        // Проверка за вече отговорен въпрос
+        if (resultEl.innerText.length > 0) return;
+
+        if (event.target.innerText === correctLetter) {
+          resultEl.innerText = `✅ Правилно! Това е ${correctLetter}.`;
+          resultEl.className = "mt-2 text-sm font-bold text-green-600";
+          event.target.className =
+            "px-4 py-2 bg-green-500 text-white rounded font-bold";
+        } else {
+          resultEl.innerText = `❌ Грешка! Правилният отговор е ${correctLetter}.`;
+          resultEl.className = "mt-2 text-sm font-bold text-red-600";
+          event.target.className = "px-4 py-2 bg-red-400 text-white rounded";
+        }
+      }
+
+      function checkMiniTask(taskId, correctAnswer) {
+        const options = document.getElementsByName(taskId);
+        const feedbackEl = document.getElementById(taskId + "-feedback");
+        let selectedValue = null;
+
+        for (const option of options) {
+          if (option.checked) {
+            selectedValue = option.value;
+            break;
+          }
+        }
+
+        if (selectedValue === null) {
+          feedbackEl.textContent = "Моля, изберете отговор.";
+          feedbackEl.className = "mt-1 text-sm font-bold text-yellow-700";
+        } else if (selectedValue === correctAnswer) {
+          feedbackEl.textContent = "✅ Абсолютно вярно!";
+          feedbackEl.className = "mt-1 text-sm font-bold text-green-700";
+        } else {
+          feedbackEl.textContent = "❌ Не точно. Опитайте пак!";
+          feedbackEl.className = "mt-1 text-sm font-bold text-red-700";
+        }
+      }
+    </script>
+  </body>
+</html>
